@@ -275,6 +275,6 @@ final class SerializerSelector {
     }
 
     private String baseExceptionMessage(Type type) {
-        return "Cannot select serializer for type '%s'.\n".formatted(type);
+        return String.format("Cannot select serializer for type '%s'.\n", type);
     }
 }
