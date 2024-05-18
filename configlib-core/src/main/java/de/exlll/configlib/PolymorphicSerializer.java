@@ -22,8 +22,12 @@ final class PolymorphicSerializer implements Serializer<Object, Map<?, ?>> {
 
     private void requireNonBlankProperty() {
         if (polymorphic.property().isBlank()) {
-            String msg = "The @Polymorphic annotation does not allow a blank property name but " +
-                         "type '%s' uses one.".formatted(polymorphicType.getName());
+            String msg = String.format(
+                    "The @Polymorphic annotation does not allow a blank property name but " +
+                    "type '%s' uses one.",
+                    polymorphicType.getName()
+            );
+
             throw new ConfigurationException(msg);
         }
     }
@@ -48,18 +52,24 @@ final class PolymorphicSerializer implements Serializer<Object, Map<?, ?>> {
 
     private void requireDistinctAliases(String alias) {
         if (typeByAlias.containsKey(alias)) {
-            String msg = "The @PolymorphicTypes annotation must not use the same alias for " +
-                         "multiple types. Alias '%s' appears more than once."
-                                 .formatted(alias);
+            String msg = String.format(
+                    "The @PolymorphicTypes annotation must not use the same alias for " +
+                    "multiple types. Alias '%s' appears more than once.",
+                    alias
+            );
+
             throw new ConfigurationException(msg);
         }
     }
 
     private void requireDistinctTypes(Class<?> type) {
         if (aliasByType.containsKey(type)) {
-            String msg = "The @PolymorphicTypes annotation must not contain multiple " +
-                         "definitions for the same subtype. Type '%s' appears more than once."
-                                 .formatted(type.getName());
+            String msg = String.format(
+                    "The @PolymorphicTypes annotation must not contain multiple " +
+                    "definitions for the same subtype. Type '%s' appears more than once.",
+                    type.getName()
+            );
+
             throw new ConfigurationException(msg);
         }
     }
@@ -91,10 +101,13 @@ final class PolymorphicSerializer implements Serializer<Object, Map<?, ?>> {
 
     private void requireSerializationNotContainsProperty(Map<?, ?> serialization) {
         if (serialization.containsKey(polymorphic.property())) {
-            String msg = ("Polymorphic serialization for type '%s' failed. The type contains a " +
-                          "configuration element with name '%s' but that name is " +
-                          "used by the @Polymorphic property.")
-                    .formatted(polymorphicType.getName(), polymorphic.property());
+            String msg = String.format(
+                    "Polymorphic serialization for type '%s' failed. The type contains a " +
+                    "configuration element with name '%s' but that name is " +
+                    "used by the @Polymorphic property.",
+                    polymorphicType.getName(),
+                    polymorphic.property()
+            );
             throw new ConfigurationException(msg);
         }
     }
@@ -120,9 +133,12 @@ final class PolymorphicSerializer implements Serializer<Object, Map<?, ?>> {
         try {
             return Reflect.getClassByName(className);
         } catch (RuntimeException e) {
-            String msg = ("Polymorphic deserialization for type '%s' failed. " +
-                          "The class '%s' does not exist.")
-                    .formatted(polymorphicType.getName(), className);
+            String msg = String.format(
+                    "Polymorphic deserialization for type '%s' failed. The class '%s' does not exist.",
+                    polymorphicType.getName(),
+                    className
+            );
+
             throw new ConfigurationException(msg, e);
         }
     }
@@ -130,30 +146,29 @@ final class PolymorphicSerializer implements Serializer<Object, Map<?, ?>> {
     private void requirePropertyPresent(Map<?, ?> element) {
         if (element.get(polymorphic.property()) != null)
             return;
-        String msg = """
-                     Polymorphic deserialization for type '%s' failed. \
-                     The property '%s' which holds the type is missing. \
-                     Value to be deserialized:
-                     %s\
-                     """
-                .formatted(
-                        polymorphicType.getName(),
-                        polymorphic.property(),
-                        element
-                );
+        String msg = String.format(
+                "Polymorphic deserialization for type '%s' failed. The property '%s' which holds " +
+                "the type is missing. Value to be deserialized: %s",
+                polymorphicType.getName(),
+                polymorphic.property(),
+                element
+        );
+
         throw new ConfigurationException(msg);
     }
 
     private void requireTypeIdentifierString(Object typeIdentifier) {
         if (typeIdentifier instanceof String)
             return;
-        String msg = ("Polymorphic deserialization for type '%s' failed. The type identifier '%s' " +
-                      "which should hold the type is not a string but of type '%s'.")
-                .formatted(
-                        polymorphicType.getName(),
-                        typeIdentifier,
-                        typeIdentifier.getClass().getName()
-                );
+
+        String msg = String.format(
+                "Polymorphic deserialization for type '%s' failed. The type identifier '%s' " +
+                "which should hold the type is not a string but of type '%s'.",
+                polymorphicType.getName(),
+                typeIdentifier,
+                typeIdentifier.getClass().getName()
+        );
+
         throw new ConfigurationException(msg);
     }
 

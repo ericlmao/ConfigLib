@@ -66,7 +66,6 @@ import java.lang.annotation.Target;
         ElementType.ANNOTATION_TYPE, // usage as meta-annotation
         ElementType.TYPE,            // usage on types
         ElementType.FIELD,           // usage on configuration elements
-        ElementType.RECORD_COMPONENT
 })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SerializeWith {

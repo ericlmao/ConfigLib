@@ -113,14 +113,14 @@ public final class YamlConfigurationStore<T> implements
             throw new ConfigurationException(msg);
         }
 
-        if (!(yaml instanceof Map<?, ?> map)) {
+        if (!(yaml instanceof Map<?, ?>)) {
             String msg = "The contents of the input stream do not represent a configuration. " +
                          "A valid configuration contains a YAML map but instead a " +
                          "'" + yaml.getClass() + "' was found.";
             throw new ConfigurationException(msg);
         }
 
-        return map;
+        return (Map<?, ?>) yaml;
     }
 
     @Override
@@ -132,7 +132,8 @@ public final class YamlConfigurationStore<T> implements
             return serializer.deserialize(conf);
         } catch (YamlEngineException e) {
             String msg = "The configuration file at %s does not contain valid YAML.";
-            throw new ConfigurationException(msg.formatted(configurationFile), e);
+
+            throw new ConfigurationException(String.format(msg, configurationFile), e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -141,17 +142,18 @@ public final class YamlConfigurationStore<T> implements
     private Map<?, ?> requireYamlMapForLoad(Object yaml, Path configurationFile) {
         if (yaml == null) {
             String msg = "The configuration file at %s is empty or only contains null.";
-            throw new ConfigurationException(msg.formatted(configurationFile));
+            throw new ConfigurationException(String.format(msg, configurationFile));
         }
 
-        if (!(yaml instanceof Map<?, ?> map)) {
+        if (!(yaml instanceof Map<?, ?>)) {
             String msg = "The contents of the YAML file at %s do not represent a configuration. " +
                          "A valid configuration file contains a YAML map but instead a " +
                          "'" + yaml.getClass() + "' was found.";
-            throw new ConfigurationException(msg.formatted(configurationFile));
+
+            throw new ConfigurationException(String.format(msg, configurationFile));
         }
 
-        return map;
+        return (Map<?, ?>) yaml;
     }
 
     @Override

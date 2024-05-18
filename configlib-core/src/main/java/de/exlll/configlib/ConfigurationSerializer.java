@@ -4,6 +4,7 @@ import de.exlll.configlib.ConfigurationElements.FieldElement;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 final class ConfigurationSerializer<T> extends TypeSerializer<T, FieldElement> {
     ConfigurationSerializer(Class<T> configurationType, ConfigurationProperties properties) {
@@ -33,8 +34,8 @@ final class ConfigurationSerializer<T> extends TypeSerializer<T, FieldElement> {
 
     @Override
     protected String baseDeserializeExceptionMessage(FieldElement element, Object value) {
-        return "Deserialization of value '%s' with type '%s' for field '%s' failed."
-                .formatted(value, value.getClass(), element.element());
+        return String.format("Deserialization of value '%s' with type '%s' for field '%s' failed.",
+                             value, value.getClass(), element.element());
     }
 
     @Override
@@ -42,7 +43,7 @@ final class ConfigurationSerializer<T> extends TypeSerializer<T, FieldElement> {
         return FieldExtractors.CONFIGURATION.extract(type)
                 .filter(properties.getFieldFilter())
                 .map(FieldElement::new)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override

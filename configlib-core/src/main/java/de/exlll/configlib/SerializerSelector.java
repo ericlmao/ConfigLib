@@ -121,8 +121,10 @@ final class SerializerSelector {
 
     private Optional<Serializer<?, ?>> findSerializerFactoryForType(AnnotatedType annotatedType) {
         // Serializer factory registered for Type via configurations properties
-        if ((annotatedType.getType() instanceof Class<?> cls) &&
-            properties.getSerializerFactories().containsKey(cls)) {
+        if (annotatedType.getType() instanceof Class<?>) {
+            Class<?> cls = (Class<?>) annotatedType.getType();
+            if (!properties.getSerializerFactories().containsKey(cls)) return Optional.empty();
+
             final var context = new SerializerContextImpl(properties, element, annotatedType);
             final var factory = properties.getSerializerFactories().get(cls);
             final var serializer = factory.apply(context);
@@ -137,8 +139,10 @@ final class SerializerSelector {
 
     private Optional<Serializer<?, ?>> findSerializerForType(AnnotatedType annotatedType) {
         // Serializer registered for Type via configurations properties
-        if ((annotatedType.getType() instanceof Class<?> cls) &&
-            properties.getSerializers().containsKey(cls)) {
+        if ((annotatedType.getType() instanceof Class<?>)) {
+            Class<?> cls = (Class<?>) annotatedType.getType();
+            if (!properties.getSerializers().containsKey(cls)) return Optional.empty();
+
             return Optional.of(properties.getSerializers().get(cls));
         }
         return Optional.empty();
@@ -146,8 +150,10 @@ final class SerializerSelector {
 
     private Optional<Serializer<?, ?>> findSerializerOnType(AnnotatedType annotatedType) {
         // SerializeWith annotation on type
-        if ((annotatedType.getType() instanceof Class<?> cls) &&
-            (cls.getDeclaredAnnotation(SerializeWith.class) != null)) {
+        if (annotatedType.getType() instanceof Class<?>) {
+            Class<?> cls = (Class<?>) annotatedType.getType();
+            if (cls.getDeclaredAnnotation(SerializeWith.class) == null) return Optional.empty();
+
             final var annotation = cls.getDeclaredAnnotation(SerializeWith.class);
             return Optional.of(newSerializerFromAnnotation(annotatedType, annotation));
         }
@@ -156,7 +162,9 @@ final class SerializerSelector {
 
     private Optional<Serializer<?, ?>> findMetaSerializerOnType(AnnotatedType annotatedType) {
         // SerializeWith meta annotation on type
-        if ((annotatedType.getType() instanceof Class<?> cls)) {
+        if ((annotatedType.getType() instanceof Class<?>)) {
+            Class<?> cls = (Class<?>) annotatedType.getType();
+
             for (final var meta : cls.getDeclaredAnnotations()) {
                 final var metaType = meta.annotationType();
                 final var annotation = metaType.getDeclaredAnnotation(SerializeWith.class);
@@ -248,12 +256,13 @@ final class SerializerSelector {
                     ? new SetAsListSerializer<>(elementSerializer, outputNulls, inputNulls)
                     : new SetSerializer<>(elementSerializer, outputNulls, inputNulls);
         } else if (Reflect.isMapType(rawType)) {
-            if ((typeArgs[0].getType() instanceof Class<?> cls) &&
-                (DEFAULT_SERIALIZERS.containsKey(cls) ||
-                 Reflect.isEnumType(cls))) {
-                var keySerializer = selectForClass(typeArgs[0]);
-                var valSerializer = selectForType(typeArgs[1]);
-                return new MapSerializer<>(keySerializer, valSerializer, outputNulls, inputNulls);
+            if (typeArgs[0].getType() instanceof Class<?>) {
+                Class<?> cls = (Class<?>) typeArgs[0].getType();
+                if (DEFAULT_SERIALIZERS.containsKey(cls) || Reflect.isEnumType(cls)) {
+                    var keySerializer = selectForClass(typeArgs[0]);
+                    var valSerializer = selectForType(typeArgs[1]);
+                    return new MapSerializer<>(keySerializer, valSerializer, outputNulls, inputNulls);
+                }
             }
             String msg = baseExceptionMessage(type) +
                          "Map keys can only be of simple or enum type.";

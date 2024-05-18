@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  * @Polymorphic
  * interface B { ... }
  *
- * record Impl1() implements B { ... }
+ * static final class Impl1() implements B { ... }
  *
  * @Configuration
  * static final class Impl2 implements B { ... }

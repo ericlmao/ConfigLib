@@ -21,11 +21,11 @@ public final class ConfigLib extends JavaPlugin {
     private static YamlConfigurationProperties initializeBukkitDefaultProperties() {
         return YamlConfigurationProperties
                 .newBuilder()
-                .addSerializerByCondition(
-                        type -> type instanceof Class<?> cls &&
-                                ConfigurationSerializable.class.isAssignableFrom(cls),
-                        BukkitConfigurationSerializableSerializer.DEFAULT
-                )
-                .build();
+                .addSerializerByCondition(type -> {
+                    if (!(type instanceof Class<?>)) return false;
+
+                    Class<?> cls = (Class<?>) type;
+                    return ConfigurationSerializable.class.isAssignableFrom(cls);
+                }, BukkitConfigurationSerializableSerializer.DEFAULT).build();
     }
 }

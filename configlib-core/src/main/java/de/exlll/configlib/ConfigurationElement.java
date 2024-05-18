@@ -4,18 +4,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Field;
-import java.lang.reflect.RecordComponent;
 
 /**
- * Represents an element of a serializable configuration type. The element can either be a
- * {@link Field} for configuration classes or a {@link RecordComponent} for records.
+ * Represents an element of a serializable configuration type. The element must be a {@link Field}
  *
  * @param <T> the type of the element
  */
-public sealed interface ConfigurationElement<T extends AnnotatedElement>
-        permits
-        ConfigurationElements.FieldElement,
-        ConfigurationElements.RecordComponentElement {
+public interface ConfigurationElement<T extends AnnotatedElement> {
     /**
      * Returns the element itself.
      *

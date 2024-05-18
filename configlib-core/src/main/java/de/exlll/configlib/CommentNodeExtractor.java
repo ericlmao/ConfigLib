@@ -1,10 +1,10 @@
 package de.exlll.configlib;
 
 import de.exlll.configlib.ConfigurationElements.FieldElement;
-import de.exlll.configlib.ConfigurationElements.RecordComponentElement;
 
 import java.lang.reflect.AnnotatedElement;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static de.exlll.configlib.Validator.requireConfigurationType;
 import static de.exlll.configlib.Validator.requireNonNull;
@@ -20,10 +20,25 @@ final class CommentNodeExtractor {
         this.outputNull = properties.outputNulls();
     }
 
-    private record State(
-            Iterator<? extends ConfigurationElement<?>> iterator,
-            Object elementHolder
-    ) {}
+    private static class State {
+
+        private final Iterator<? extends ConfigurationElement<?>> iterator;
+        private final Object elementHolder;
+
+        public State(Iterator<? extends ConfigurationElement<?>> iterator, Object elementHolder) {
+            this.iterator = iterator;
+            this.elementHolder = elementHolder;
+        }
+
+        public Iterator<? extends ConfigurationElement<?>> iterator() {
+            return this.iterator;
+        }
+
+        public Object elementHolder() {
+            return this.elementHolder;
+        }
+
+    }
 
     /**
      * Extracts {@code CommentNode}s of the given configuration type in a DFS manner.
@@ -74,9 +89,7 @@ final class CommentNodeExtractor {
 
     private State stateFromObject(final Object elementHolder) {
         final var type = elementHolder.getClass();
-        final var iter = type.isRecord()
-                ? recordComponentElements(elementHolder)
-                : fieldElements(elementHolder);
+        final var iter = fieldElements(elementHolder);
         return new State(iter, elementHolder);
     }
 
@@ -88,7 +101,7 @@ final class CommentNodeExtractor {
         if (element.isAnnotationPresent(Comment.class)) {
             final var comments = Arrays.stream(element.getAnnotation(Comment.class).value())
                     .flatMap(s -> Arrays.stream(s.split("\n", -1)))
-                    .toList();
+                    .collect(Collectors.toList());
             final var formattedName = nameFormatter.format(elementName);
             final var elementNames = new ArrayList<>(elementNameStack);
             elementNames.add(formattedName);
@@ -105,9 +118,4 @@ final class CommentNodeExtractor {
                 .iterator();
     }
 
-    private Iterator<RecordComponentElement> recordComponentElements(Object record) {
-        return Arrays.stream(record.getClass().getRecordComponents())
-                .map(RecordComponentElement::new)
-                .iterator();
-    }
 }

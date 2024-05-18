@@ -3,6 +3,7 @@ package de.exlll.configlib;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 enum FieldExtractors implements FieldExtractor {
@@ -22,7 +23,7 @@ enum FieldExtractors implements FieldExtractor {
             List<Field> fields = classes.stream()
                     .flatMap(c -> Arrays.stream(c.getDeclaredFields()))
                     .filter(FieldFilters.DEFAULT)
-                    .toList();
+                    .collect(Collectors.toList());
             requireNoShadowing(fields);
             return fields.stream();
         }
